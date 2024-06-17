@@ -250,7 +250,27 @@ public class KeyToFile {
     }
 }
 
+package org.example;
 
+import org.apache.sshd.common.keyprovider.AbstractKeyPairProvider;
+import org.apache.sshd.common.session.SessionContext;
+
+import java.security.KeyPair;
+import java.util.Collections;
+import java.util.List;
+
+public class CustomHostKeyProvider extends AbstractKeyPairProvider {
+    private final KeyPair keyPair;
+
+    public CustomHostKeyProvider(KeyPair keyPair) {
+        this.keyPair = keyPair;
+    }
+
+    @Override
+    public List<KeyPair> loadKeys(SessionContext session) {
+        return Collections.singletonList(keyPair);
+    }
+}
 </project>
 */
 
