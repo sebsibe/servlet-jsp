@@ -1,3 +1,103 @@
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
+
+import javax.net.ssl.SSLContext;
+import java.net.URI;
+
+public class RestClient {
+    public static void main(String[] args) {
+        try {
+            // Create HttpClient that ignores SSL
+            SSLContext sslContext = SSLContextBuilder
+                    .create()
+                    .loadTrustMaterial((chain, authType) -> true)
+                    .build();
+
+            CloseableHttpClient httpClient = HttpClients.custom()
+                    .setSSLContext(sslContext)
+                    .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                    .build();
+
+            // Custom Request Factory to handle GET with body
+            ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient) {
+                @Override
+                protected HttpEntityEnclosingRequestBase createHttpUriRequest(HttpMethod httpMethod, URI uri) {
+                    if (httpMethod == HttpMethod.GET) {
+                        return new HttpEntityEnclosingGetRequest(uri);
+                    }
+                    return super.createHttpUriRequest(httpMethod, uri);
+                }
+
+                private class HttpEntityEnclosingGetRequest extends HttpEntityEnclosingRequestBase {
+                    public HttpEntityEnclosingGetRequest(final URI uri) {
+                        super.setURI(uri);
+                    }
+
+                    @Override
+                    public String getMethod() {
+                        return HttpMethod.GET.name();
+                    }
+                }
+            };
+
+            RestTemplate restTemplate = new RestTemplate(requestFactory);
+
+            String url = "https://api.example.com/data"; // Update with your actual URL
+            String bearerToken = "your_bearer_token_here"; // Update with your actual token
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + bearerToken);
+            headers.set("Accept", "application/json");
+
+            // Your request body
+            String requestBody = "{\"key\":\"value\"}";
+
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+
+            URI uri = new URI(url);
+
+            ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+
+            String responseBody = response.getBody();
+
+            System.out.println("Response Body: " + responseBody);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+================================================================
 package miss.xing;
 
 import jakarta.servlet.ServletException;
