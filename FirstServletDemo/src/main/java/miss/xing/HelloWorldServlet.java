@@ -279,5 +279,80 @@ SunRsaSign RSA private CRT key, 2048 bits
   params: null
   modulus: 26892140538798129419756431897571529087184173269805632241230705074577880819779067536870589761614221451536653819058021118365512888259890378796566766172109672942409263695831087346133390553273777950126508635007737803707704640129423365484090832963680397831167323049246807621865674354510595925586781153213454602567044570744577927256471511360847457311604372007186273139339862750853553825163002077518392456588769732837296270914495505502802275017823866592456792558894052001008000653140434671148437246336225162356410484196532924017282641728234899066969349992378019120674123843253911065616229608219111766751852956178157599843339
   private exponent: 3399627452644193390644705102024507049259515625377110077034291950239982644794079291743180740268456363977313225977626454760795799002596880973031351110608185304909604493949380634797368520589487622515496956544228568651575948601130240673752117904452326106340254687626986300061905672019169129552565449354921210648416064015873127027450562283380118918123108693263595207269463737325275050944273817674902618582328565209587285616588521964826055791125488313008975113870139354528002470899546688690822560292270279669061485408713452019152970878182675018471670874894147483395654343338952369094468668175714830111605281259059489623073
+=======================================================================================
+/*
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.client.ClientHttpRequest;
+import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.client.support.HttpRequestWrapper;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 
+import java.io.IOException;
+import java.net.URI;
 
+public class HttpComponentsClientHttpRequestFactoryWithBody extends HttpComponentsClientHttpRequestFactory {
+
+    public HttpComponentsClientHttpRequestFactoryWithBody() {
+        super();
+    }
+
+    @Override
+    protected HttpUriRequest createHttpUriRequest(HttpMethod httpMethod, URI uri) {
+        if (httpMethod == HttpMethod.GET) {
+            return new HttpEntityEnclosingGetRequest(uri);
+        }
+        return super.createHttpUriRequest(httpMethod, uri);
+    }
+
+    private static class HttpEntityEnclosingGetRequest extends HttpEntityEnclosingRequestBase {
+        public HttpEntityEnclosingGetRequest(final URI uri) {
+            super.setURI(uri);
+        }
+
+        @Override
+        public String getMethod() {
+            return HttpMethod.GET.name();
+        }
+    }
+}
+============================================================
+
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+public class RestClient {
+    public static void main(String[] args) throws URISyntaxException {
+        RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactoryWithBody());
+        
+        String url = "https://api.example.com/data"; // Update with your actual URL
+        String bearerToken = "your_bearer_token_here"; // Update with your actual token
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + bearerToken);
+        headers.set("Accept", "application/json");
+
+        // Your request body
+        String requestBody = "{\"key\":\"value\"}";
+
+        HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+
+        URI uri = new URI(url);
+        
+        ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, entity, String.class);
+
+        String responseBody = response.getBody();
+        
+        System.out.println("Response Body: " + responseBody);
+    }
+}
+
+*/
