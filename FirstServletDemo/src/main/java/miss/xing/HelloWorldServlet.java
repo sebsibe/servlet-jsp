@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.net.URI;
 
-public class CustomRestTemplateExample {
+public class CustomRestTemplateExample {A
 
     public static void main(String[] args) {
         RestTemplate restTemplate = new RestTemplate(new CustomClientHttpRequestFactory());
